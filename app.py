@@ -2,17 +2,15 @@ from sklearn.metrics import accuracy_score
 import streamlit as st
 import cv2
 import numpy as np
-import pickle
+import joblib
 from PIL import Image
 
 # --- Page Configuration ---
 st.set_page_config(page_title="Graphology Analysis", layout="wide")
 
 # --- Load Model and Scaler ---
-with open('model.pkl', 'rb') as f:
-    model = pickle.load(f)
-with open('scaler.pkl', 'rb') as f:
-    scaler = pickle.load(f)
+model = joblib.load("models/model.pkl")  # Load single model file
+scaler = joblib.load("models/scaler.pkl")  # Load single scaler file
 
 # --- Personality Mapping ---
 personality_map = {
@@ -141,13 +139,3 @@ if uploaded_file:
         st.metric("💪 Pen Pressure", f"{features['pen_pressure']:.1f}")
         st.metric("🧭 Slant Angle", f"{features['slant_angle']:.1f}° ({slant_category})")
 
-# --- Model Accuracy Evaluation ---
-def evaluate_model_accuracy(model, scaler, rfeature_list, label_list):
-    scaled_test_features = scaler.transform(rfeature_list)
-    predictions = model.predict(scaled_test_features)
-    accuracy = accuracy_score(label_list, predictions)
-    st.write(f"✅ Model Accuracy: {accuracy * 100:.2f}%")
-
-# Example usage to check accuracy (for internal testing only)
-if 'rfeature_list' in locals() and 'label_list' in locals():
-    evaluate_model_accuracy(model, scaler, rfeature_list, label_list)
